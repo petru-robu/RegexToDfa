@@ -1,5 +1,4 @@
 #Finite Automata Implementation
-
 class NFA:
     def __init__(self, states: set, alphabet:set, transitions:dict, start:str, final_states:set):
         self.states = states
@@ -20,6 +19,7 @@ class NFA:
             print()
         print(f'Starts from: {self.start}')
         print(f'Final States: {', '.join(self.final_states)}')
+        print(f'is DFA? -> {self.isDeterministic()}')
 
     def checkAcceptance(self, word: str) -> bool:
         #print("-----Checking word-----")
@@ -38,7 +38,7 @@ class NFA:
                 curr_states.pop()
 
             for state in states_to_search:
-                if state in self.transitions and letters[i] in self.transitions[state]:
+                if state in self.transitions and letters[i] in self.transitions[state] and self.transitions[state][letters[i]] != None:
                     for next_state in self.transitions[state][letters[i]]:
                         curr_states.add(next_state)
             

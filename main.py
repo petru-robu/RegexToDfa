@@ -81,7 +81,10 @@ def postfix_regex_to_nfa(postfix: str) -> NFA:
     if len(stack) != 1:
         raise ValueError("Invalid postfix regex")
 
-    return lambda_to_nfa(stack.pop())
+    res_nfa = stack.pop()
+    res_nfa = lambda_to_nfa(res_nfa)
+    res_nfa = transform_to_deterministic(res_nfa)
+    return res_nfa
 
 
 def run_regex_tests_from_json(json_file):

@@ -38,7 +38,7 @@ The implementation goes through the following steps:
 * Regular expression in postfix form (via Shunting-Yard algorithm) 
 * lambda-NFA constructed from operations 
 * NFA obtained by removing lambda states
-* DFA (via conversion algorithm)
+* DFA (via subset construction)
 * minimized DFA (via minimization algorithm) - output
 
 The application is structured in 3 files: *operations.py*, *finite_automata.py* and *main.py*.

@@ -7,6 +7,7 @@
 # (.) concatenarea
 
 from finite_automata import NFA
+from collections import deque, defaultdict
 
 #Functions for converting lambda_nfa to normal
 def lambda_closure(lambda_nfa: NFA, state_set: set) -> set:
@@ -161,3 +162,59 @@ def make_literal_nfa(symbol: str) -> NFA:
         start_state: {symbol: {final_state}}
     }
     return NFA(states, alphabet, transitions, start_state, {final_state})
+
+
+def transform_to_deterministic(nfa: NFA) -> NFA:
+    if nfa.isDeterministic():
+        return nfa
+
+    start_state = frozenset([nfa.start])
+    dfa_states = set()
+    dfa_transitions = {}
+    dfa_final_states = set()
+
+    queue = deque()
+    queue.append(start_state)
+
+    state_names = {start_state: 'S0'}
+    name_counter = 1
+
+    while queue:
+        current = queue.popleft()
+        current_name = state_names[current]
+        dfa_states.add(current_name)
+
+        dfa_transitions[current_name] = {}
+
+        for symbol in nfa.alphabet:
+            next_state_set = set()
+            for state in current:
+                if state in nfa.transitions and symbol in nfa.transitions[state]:
+                    next_state_set.update(nfa.transitions[state][symbol])
+
+            next_state_frozen = frozenset(next_state_set)
+
+            if not next_state_set:
+                continue
+
+            if next_state_frozen not in state_names:
+                state_names[next_state_frozen] = f"S{name_counter}"
+                name_counter += 1
+                queue.append(next_state_frozen)
+
+            next_state_name = state_names[next_state_frozen]
+            dfa_transitions[current_name][symbol] = {next_state_name}
+
+    #set dfa final states
+    for state_set, name in state_names.items():
+        if any(s in nfa.final_states for s in state_set):
+            dfa_final_states.add(name)
+
+    dfa = NFA(
+        states=set(state_names.values()),
+        alphabet=nfa.alphabet,
+        transitions=dfa_transitions,
+        start=state_names[start_state],
+        final_states=dfa_final_states
+    )
+    return dfa
